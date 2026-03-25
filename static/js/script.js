@@ -1,111 +1,127 @@
 (() => {
-    document.addEventListener('DOMContentLoaded', () => {
-        const header = document.querySelector('.header');
-        const hero = document.querySelector('.hero');
-        const getStartedBtn = document.getElementById('getStartedBtn');
+    // ===== THEME MANAGEMENT =====
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
 
-        // Get Started button click handler with ripple
-        if (getStartedBtn) {
-            getStartedBtn.addEventListener('click', (event) => {
-                createRipple(getStartedBtn, event);
-                setTimeout(() => {
-                    window.location.href = '/dashboard';
-                }, 300);
+    // Load saved preference or system default
+    const savedTheme = localStorage.getItem('krishi-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+    setTheme(initialTheme);
+
+    function setTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        if (themeToggle) {
+            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+        }
+        localStorage.setItem('krishi-theme', theme);
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            setTheme(current === 'dark' ? 'light' : 'dark');
+        });
+    }
+
+    // ===== MOBILE HAMBURGER =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    if (hamburger && mobileMenu) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+
+        // Close on link click
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
             });
-        }
+        });
 
-        // Smooth scroll for internal links
+        // Close on outside click
         document.addEventListener('click', (e) => {
-            const anchor = e.target.closest('a[href^="#"]');
-            if (!anchor) return;
-
-            e.preventDefault();
-            const target = document.querySelector(anchor.getAttribute('href'));
-            target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-
-        // Header scroll shadow with requestAnimationFrame for performance
-        let lastScroll = 0;
-        const onScroll = () => {
-            const currentScroll = window.pageYOffset;
-            const shadow = currentScroll > 100 ? '0 4px 16px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.08)';
-            header?.style.setProperty('box-shadow', shadow);
-            lastScroll = currentScroll;
-        };
-        window.addEventListener('scroll', () => requestAnimationFrame(onScroll));
-
-        // Ripple effect
-        function createRipple(button, event) {
-            const ripple = document.createElement('span');
-            const rect = button.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = event.clientX - rect.left - size / 2;
-            const y = event.clientY - rect.top - size / 2;
-
-            ripple.style.width = ripple.style.height = `${size}px`;
-            ripple.style.left = `${x}px`;
-            ripple.style.top = `${y}px`;
-            ripple.className = 'ripple';
-            button.appendChild(ripple);
-
-            setTimeout(() => ripple.remove(), 600);
-        }
-
-        // Parallax effect with throttling
-        let lastMove = 0;
-        window.addEventListener('mousemove', (e) => {
-            const now = Date.now();
-            if (now - lastMove < 16) return; // ~60fps
-            lastMove = now;
-
-            if (hero) {
-                const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
-                const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
-                hero.style.setProperty('--mouse-x', `${moveX}px`);
-                hero.style.setProperty('--mouse-y', `${moveY}px`);
+            if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
             }
         });
+    }
 
-        // Intersection Observer for fade-in animations using CSS class
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            },
-            { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-        );
+    // ===== STICKY HEADER SHADOW =====
+    const header = document.getElementById('header');
+    const onScroll = () => {
+        if (header) header.classList.toggle('scrolled', window.scrollY > 20);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
-        document.querySelectorAll('.feature-card').forEach((card) => observer.observe(card));
+    // ===== GET STARTED BUTTON =====
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', (e) => {
+            createRipple(getStartedBtn, e);
+            setTimeout(() => { window.location.href = '/dashboard'; }, 280);
+        });
+    }
 
-        // Add ripple and fade-in CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            .ripple {
-                position: absolute;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.6);
-                transform: scale(0);
-                animation: ripple-animation 0.6s ease-out;
-                pointer-events: none;
-            }
-            @keyframes ripple-animation {
-                to { transform: scale(4); opacity: 0; }
-            }
-
-            .feature-card {
-                opacity: 0;
-                transform: translateY(20px);
-                transition: opacity 0.6s ease, transform 0.6s ease;
-            }
-            .feature-card.fade-in {
-                opacity: 1;
-                transform: translateY(0);
-            }
+    // ===== RIPPLE EFFECT =====
+    function createRipple(el, event) {
+        const ripple = document.createElement('span');
+        const rect = el.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.cssText = `
+            width: ${size}px; height: ${size}px;
+            left: ${event.clientX - rect.left - size / 2}px;
+            top: ${event.clientY - rect.top - size / 2}px;
         `;
-        document.head.appendChild(style);
+        ripple.className = 'ripple-effect';
+        el.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 700);
+    }
+
+    // ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
+    document.addEventListener('click', (e) => {
+        const anchor = e.target.closest('a[href^="#"]');
+        if (!anchor) return;
+        e.preventDefault();
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+
+    // ===== SCROLL-TRIGGERED ANIMATIONS =====
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.feature-card, .step-item').forEach((el, i) => {
+        el.style.transitionDelay = `${i * 0.08}s`;
+        observer.observe(el);
+    });
+
+    // ===== SUBTLE PARALLAX ON HERO =====
+    const hero = document.querySelector('.hero');
+    let raf;
+    window.addEventListener('mousemove', (e) => {
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+            if (hero) {
+                const mx = (e.clientX / window.innerWidth - 0.5) * 12;
+                const my = (e.clientY / window.innerHeight - 0.5) * 12;
+                hero.style.setProperty('--mouse-x', `${mx}px`);
+                hero.style.setProperty('--mouse-y', `${my}px`);
+            }
+        });
+    }, { passive: true });
+
 })();

@@ -1,6 +1,12 @@
--- schema.sql uses UUID + SERIAL
--- Defines PostgreSQL tables for chat sessions, messages, and image analysis data.
+CREATE TABLE IF NOT EXISTS sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- A UUID is a 128-bit identifier that is globally unique.
--- It’s like a super-long ID that almost guarantees no two IDs are ever the same, anywhere in the world.
--- Commonly used in databases and distributed systems instead of simple numbers.
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    session_id UUID REFERENCES sessions(id) ON DELETE CASCADE,
+    role VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

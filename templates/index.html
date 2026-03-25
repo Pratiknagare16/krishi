@@ -1,97 +1,266 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Krishi Officer - Smart agriculture support powered by AI technology. Get expert help for crop diseases, pest control, and farming solutions.">
-    <title>Krishi Officer - Smart Agriculture Support</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Krishi Officer - AI-powered agricultural assistant. Upload crop photos for instant pest detection and crop advisory."
+    />
+    <title>Krishi Officer — AI Agri Assistant</title>
+
+    <!-- Preconnect for fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="logo-small">
-                <img src="/static/assets/Logo.png" alt="Krishi Officer Logo">
-                <span>Krishi Officer</span>
-            </div>
-            <nav class="nav">
-                <a href="#features">Features</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-            </nav>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link
+      rel="shortcut icon"
+      href="/static/assets/Logo.png"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <!-- ===== NAVBAR ===== -->
+    <header class="header" id="header">
+      <div class="container">
+        <a href="/" class="logo-small">
+          <img src="/static/assets/Logo.png" alt="Krishi Officer" />
+          <span>Krishi Officer</span>
+        </a>
+
+        <div class="header-actions">
+          <nav class="nav">
+            <a href="#features">Features</a>
+            <a href="#how">How It Works</a>
+          </nav>
+
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle theme"
+          >
+            🌙
+          </button>
+          <button class="hamburger" id="hamburger" aria-label="Open menu">
+            <span></span><span></span><span></span>
+          </button>
         </div>
+      </div>
     </header>
 
-    <!-- Hero Section -->
-    <main class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <!-- Animated Logo with Icons -->
-                <div class="logo-container">
-                    <div class="floating-icons">
-                        <span class="icon icon-1">🌾</span>
-                        <span class="icon icon-2">🌱</span>
-                        <span class="icon icon-3">🐛</span>
-                        <span class="icon icon-4">🍃</span>
-                        <span class="icon icon-5">🌿</span>
-                        <span class="icon icon-6">🌾</span>
-                    </div>
-                    <div class="logo-main">
-                        <img src="/static/assets/Logo.png" alt="Krishi Officer - AI Agriculture Assistant">
-                      
-                    </div>
-                </div>
+    <!-- Mobile navigation drawer -->
+    <nav class="mobile-menu" id="mobileMenu">
+      <a href="#features" class="mobile-link">Features</a>
+      <a href="#how" class="mobile-link">How It Works</a>
+      <a href="/dashboard" class="mobile-link">Open Dashboard →</a>
+    </nav>
 
-                <!-- Title and Tagline -->
-                <h1 class="hero-title">Krishi Officer</h1>
-                <p class="hero-subtitle">Smart agriculture support powered by technology</p>
-
-                <!-- CTA Button -->
-                <button class="cta-button" id="getStartedBtn">
-                    <span>Get Started</span>
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-
-                <!-- Features Grid -->
-                <div class="features-preview">
-                    <div class="feature-card">
-                        <div class="feature-icon">🪲</div>
-                        <h3>Pest Detection</h3>
-                        <p>AI-powered crop pest identification</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🧪</div>
-                        <h3>Soil Health</h3>
-                        <p>AI-powered soil health analysis</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🌾</div>
-                        <h3>Crop Advisory</h3>
-                        <p>AI-powered crop advisory</p>
-                    </div>
-                </div>
+    <!-- ===== HERO ===== -->
+    <main class="hero" id="home">
+      <div class="container">
+        <div class="hero-layout">
+          <!-- Left: Text -->
+          <div class="hero-text">
+            <div class="hero-badge">
+              <span class="dot"></span>
+              Powered by Google Gemini AI
             </div>
+
+            <h1 class="hero-title">
+              Smart Farming<br />Starts with
+              <span class="highlight">Krishi Officer</span>
+            </h1>
+
+            <p class="hero-subtitle">
+              Upload a photo of your crops and get instant AI-powered advice on
+              pest detection, crop health, and organic remedies — in your own
+              language.
+            </p>
+
+            <div class="hero-cta">
+              <button class="btn-primary ripple-host" id="getStartedBtn">
+                Open Dashboard
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3 8h10m-4-4l4 4-4 4"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <a href="#features" class="btn-secondary"> See Features </a>
+            </div>
+          </div>
+
+          <!-- Right: Visual Card -->
+          <div class="hero-visual">
+            <div class="hero-card-main">
+              <!-- Floating stats -->
+              <div class="stat-float top-right">
+                <span class="stat-icon">⚡</span>
+                <div>
+                  <div>Instant Analysis</div>
+                  <div class="stat-label">AI-powered</div>
+                </div>
+              </div>
+              <div class="stat-float bottom-left">
+                <span class="stat-icon">🌿</span>
+                <div>
+                  <div>Organic First</div>
+                  <div class="stat-label">No Chemicals</div>
+                </div>
+              </div>
+
+              <!-- Center logo -->
+              <div class="logo-center">
+                <div class="hero-logo-wrap" style="position: relative">
+                  <div class="logo-pulse"></div>
+                  <img src="/static/assets/Logo.png" alt="Krishi Officer AI" />
+                </div>
+                <p
+                  style="
+                    font-family: var(--font-heading);
+                    font-weight: 700;
+                    font-size: 15px;
+                    color: var(--text-secondary);
+                  "
+                >
+                  AI Crop Advisor
+                </p>
+              </div>
+
+              <!-- Feature pills -->
+              <div class="feature-pills">
+                <a href="/pest-detection" class="pill">
+                  <span class="pill-icon">🪲</span>
+                  <div class="pill-text">
+                    <strong>Pest Detection</strong>
+                    <span>Upload image → Get ID + remedy</span>
+                  </div>
+                  <span class="pill-status">Active</span>
+                  <span class="pill-arrow">→</span>
+                </a>
+                <a href="/crop-advisory" class="pill">
+                  <span class="pill-icon">🌾</span>
+                  <div class="pill-text">
+                    <strong>Crop Advisory</strong>
+                    <span>Ask anything about your crops</span>
+                  </div>
+                  <span class="pill-status">Active</span>
+                  <span class="pill-arrow">→</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 Krishi Officer. Empowering farmers with AI technology.</p>
+    <!-- ===== FEATURES ===== -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Built for Indian Farmers</div>
+          <h2 class="section-title">Everything you need on your farm</h2>
+          <p class="section-sub">
+            Two powerful AI tools that work directly from a photo.
+          </p>
         </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon">🪲</span>
+            <h3>Pest Detection</h3>
+            <p>
+              Upload a photo of any visible pest or damage pattern. AI
+              identifies the pest and gives you a targeted organic remedy.
+            </p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🌾</span>
+            <h3>Crop Advisory</h3>
+            <p>
+              Yellowing leaves? Wilting? Upload a photo and ask a question. Get
+              actionable health advice in minutes.
+            </p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">💬</span>
+            <h3>Chat History</h3>
+            <p>
+              Every consultation is saved. Review your past sessions anytime and
+              track your farm's health over time.
+            </p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🌍</span>
+            <h3>Multi-language</h3>
+            <p>
+              Ask questions in Hindi, Marathi, or English. Krishi Officer
+              responds in the same language you use.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="how-section" id="how">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Simple 3-step process</div>
+          <h2 class="section-title">How it works</h2>
+        </div>
+        <div class="steps-grid">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <h4>Upload a Photo</h4>
+            <p>
+              Take a clear picture of your crop, leaf, or visible pest and
+              upload it to the app.
+            </p>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <h4>AI Analyzes It</h4>
+            <p>
+              Google Gemini Vision AI identifies the issue and prepares a
+              structured advisory for you.
+            </p>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <h4>Get Clear Advice</h4>
+            <p>
+              Receive practical, organic-first recommendations with specific
+              treatment steps.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <img src="/static/assets/Logo.png" alt="Krishi Officer" />
+            Krishi Officer
+          </div>
+          <p>&copy; 2026 Krishi Officer — Empowering farmers with AI.</p>
+        </div>
+      </div>
     </footer>
 
-    <!-- JavaScript -->
     <script src="/static/js/script.js"></script>
-</body>
+  </body>
 </html>

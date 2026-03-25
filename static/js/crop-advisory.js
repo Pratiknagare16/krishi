@@ -1,150 +1,249 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Elements
-  const plusBtn = document.getElementById('plusBtn')
-  const imageInput = document.getElementById('imageInput')
-  const imagePreview = document.getElementById('imagePreview')
-  const previewImg = document.getElementById('previewImg')
-  const removeImageBtn = document.getElementById('removeImage')
-  const textInput = document.getElementById('textInput')
-  const diagnoseBtn = document.getElementById('diagnoseBtn')
-  const resultsPlaceholder = document.getElementById('resultsPlaceholder')
-  const resultsContent = document.getElementById('resultsContent')
+(() => {
+    const els = {
+        plusBtn: document.getElementById('plusBtn'),
+        imageInput: document.getElementById('imageInput'),
+        imagePreview: document.getElementById('imagePreview'),
+        previewImg: document.getElementById('previewImg'),
+        removeImage: document.getElementById('removeImage'),
+        textInput: document.getElementById('textInput'),
+        diagnoseBtn: document.getElementById('diagnoseBtn'),
+        resultsPlaceholder: document.getElementById('resultsPlaceholder'),
+        resultsContent: document.getElementById('resultsContent'),
+        historyList: document.getElementById('historyList'),
+        sessionCount: document.getElementById('sessionCount'),
+    };
 
-  let selectedFile = null
+    let selectedFile = null;
+    let currentSessionId = localStorage.getItem('crop_session_id') || null;
 
-  // 2. Trigger hidden file input when + is clicked
-  plusBtn.addEventListener('click', () => {
-    imageInput.click()
-  })
+    // --- UI Interactions ---
+    els.plusBtn.addEventListener('click', () => els.imageInput.click());
 
-  // 3. Handle File Selection and Show Preview Bubble
-  imageInput.addEventListener('change', e => {
-    const file = e.target.files[0]
-    if (file && file.type.startsWith('image/')) {
-      selectedFile = file
-      const reader = new FileReader()
+    els.imageInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file?.type.startsWith('image/')) return;
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            els.previewImg.src = ev.target.result;
+            els.imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
 
-      reader.onload = event => {
-        previewImg.src = event.target.result
-        imagePreview.style.display = 'block' // Show the floating bubble
-      }
+    els.removeImage.addEventListener('click', e => {
+        e.preventDefault();
+        selectedFile = null;
+        els.imageInput.value = '';
+        els.imagePreview.style.display = 'none';
+        els.previewImg.src = '';
+    });
 
-      reader.readAsDataURL(file)
-    }
-  })
+    els.textInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+        this.style.overflowY = this.scrollHeight > 140 ? 'auto' : 'hidden';
+    });
 
-  // 4. Remove Image Attachment
-  removeImageBtn.addEventListener('click', e => {
-    e.preventDefault()
-    selectedFile = null
-    imageInput.value = ''
-    imagePreview.style.display = 'none'
-    previewImg.src = ''
-  })
+    els.textInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            els.diagnoseBtn.click();
+        }
+    });
 
-  // 5. Auto-expand textarea as user types (Max height 150px)
-  textInput.addEventListener('input', function () {
-    this.style.height = 'auto'
-    const newHeight = Math.min(this.scrollHeight, 150)
-    this.style.height = newHeight + 'px'
-    this.style.overflowY = this.scrollHeight > 150 ? 'auto' : 'hidden'
-  })
+    // --- Core API Logic ---
+    els.diagnoseBtn.addEventListener('click', async () => {
+        const query = els.textInput.value.trim();
+        if (!selectedFile && !query) {
+            els.textInput.focus();
+            return;
+        }
 
-  // 6. Diagnose Button (API Orchestration)
-  diagnoseBtn.addEventListener('click', async () => {
-    const queryText = textInput.value.trim()
+        // Hide placeholder, ensure clear chat log container if empty
+        els.resultsPlaceholder.style.display = 'none';
+        els.resultsContent.style.display = 'flex';
+        els.resultsContent.classList.add('chat-log');
 
-    if (!selectedFile && !queryText) {
-      alert('Please provide an image or a description of the issue.')
-      return
-    }
+        // Track file before clearing state
+        const fileToUpload = selectedFile;
 
-    // --- Loading State ---
-    diagnoseBtn.disabled = true
-    diagnoseBtn.style.opacity = '0.7'
-    diagnoseBtn.innerHTML = '<span>⏳</span>'
-    resultsPlaceholder.innerHTML = `
-      <div class="placeholder-icon">⏳</div>
-      <p>Krishi AI is analyzing your crop...</p>
-      <small style="color: #888;">This may take a moment</small>
-    `
+        // Optimistic UI: append user message but keep a ref for rollback on failure
+        const userMsg = query || "[Image Uploaded]";
+        const userBubble = appendMessage('user', userMsg);
+        
+        // Reset inputs immediately for good UX
+        els.textInput.value = '';
+        els.textInput.style.height = 'auto';
+        selectedFile = null;
+        els.imagePreview.style.display = 'none';
+        els.imageInput.value = '';
 
-    // Prepare Data
-    const formData = new FormData()
-    formData.append(
-      'query',
-      queryText || 'Analyze this crop image for pests or diseases.'
-    )
-    if (selectedFile) {
-      formData.append('crop_image', selectedFile)
-    }
+        setLoading(true);
 
-    try {
-      const response = await fetch('/analyze-crop', {
-        method: 'POST',
-        body: formData
-      })
+        const formData = new FormData();
+        formData.append('query', query || 'Analyze this crop condition.');
+        if (fileToUpload) formData.append('crop_image', fileToUpload);
+        if (currentSessionId) formData.append('session_id', currentSessionId);
 
-      const data = await response.json()
+        const savedLang = localStorage.getItem('krishi_language') || 'en';
+        formData.append('language', savedLang);
 
-      if (data.advice) {
-        showResults(data.advice)
-      } else {
-        throw new Error(data.error || 'Analysis failed')
-      }
-    } catch (error) {
-      console.error('Fetch error:', error)
-      resultsPlaceholder.innerHTML = `
-        <div class="placeholder-icon">⚠️</div>
-        <p>Error: ${error.message}</p>
-        <button onclick="location.reload()" style="margin-top: 15px; padding: 8px 16px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer;">Try Again</button>
-      `
-    } finally {
-      diagnoseBtn.disabled = false
-      diagnoseBtn.style.opacity = '1'
-      diagnoseBtn.innerHTML = '<span>➤</span>'
-    }
-  })
+        try {
+            const res = await fetch('/analyze-crop', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (!res.ok || !data.advice) throw new Error(data.error || 'Analysis failed');
+            
+            // Save session
+            currentSessionId = data.session_id;
+            localStorage.setItem('crop_session_id', currentSessionId);
+            
+            removeLoading();
+            appendMessage('ai', data.advice);
+            loadHistoryPanel();
+        } catch (err) {
+            removeLoading();
+            // Roll back the optimistic user message bubble
+            if (userBubble && userBubble.parentNode) userBubble.remove();
+            appendMessage('error', '⚠️ ' + (err.message || 'Something went wrong. Please try again.'));
+        }
+    });
 
-  // 7. Enhanced Display Logic (Handles Gemini Markdown)
-  function showResults (advice) {
-    resultsPlaceholder.style.display = 'none'
-    resultsContent.style.display = 'block'
-
-    // Advanced formatting for Gemini Markdown
-    let formattedAdvice = advice
-      .replace(/^### (.*$)/gim, '<h3 class="result-section-title">$1</h3>') // Headers
-      .replace(/^## (.*$)/gim, '<h2 class="result-section-title">$1</h2>') // H2
-      .replace(/^# (.*$)/gim, '<h1 class="result-section-title">$1</h1>') // H1
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-      .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-      .replace(/^\* (.*$)/gim, '<li>$1</li>') // Unordered lists
-      .replace(/^\d+\. (.*$)/gim, '<li>$1</li>') // Ordered lists
-      .replace(/\n\s*\n/g, '</p><p>') // Paragraphs
-      .replace(/\n/g, '<br>') // Line breaks
-
-    // Wrap list items in <ul> if they exist
-    if (formattedAdvice.includes('<li>')) {
-        // Simple regex to wrap groups of <li> tags in <ul>
-        formattedAdvice = formattedAdvice.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
+    function appendMessage(role, content) {
+        const div = document.createElement('div');
+        div.className = `chat-bubble chat-bubble--${role}`;
+        div.innerHTML = role === 'ai' ? formatMarkdown(content) : escapeHTML(content);
+        els.resultsContent.appendChild(div);
+        
+        // Auto-scroll to bottom
+        const panel = els.resultsContent.parentElement;
+        panel.scrollTo({ top: panel.scrollHeight, behavior: 'smooth' });
+        return div;
     }
 
-    resultsContent.innerHTML = `
-            <div class="result-item">
-                <h3 class="result-title">🌿 Krishi AI Diagnosis</h3>
-                <div class="result-text"><p>${formattedAdvice}</p></div>
-            </div>
-        `
+    function setLoading(on) {
+        els.diagnoseBtn.disabled = on;
+        els.diagnoseBtn.innerHTML = on ? '⏳' : '➤';
+        if (on) {
+            const div = document.createElement('div');
+            div.className = 'chat-bubble chat-bubble--ai typing-indicator';
+            div.id = 'loadingBubble';
+            div.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div> analyzing…`;
+            els.resultsContent.appendChild(div);
+            const panel = els.resultsContent.parentElement;
+            panel.scrollTo({ top: panel.scrollHeight, behavior: 'smooth' });
+        }
+    }
 
-    // Reset UI
-    textInput.value = ''
-    textInput.style.height = 'auto'
-    selectedFile = null
-    imageInput.value = ''
-    imagePreview.style.display = 'none'
+    function removeLoading() {
+        const loading = document.getElementById('loadingBubble');
+        if (loading) loading.remove();
+        els.diagnoseBtn.disabled = false;
+        els.diagnoseBtn.style.opacity = '1';
+        els.diagnoseBtn.innerHTML = '➤';
+    }
 
-    // Smooth scroll to results
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-})
+    function formatMarkdown(text) {
+        return text
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+            .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul>${match}</ul>`)
+            .replace(/\n\n+/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+    }
 
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag]));
+    }
+
+    // --- Session History Fetching ---
+    async function loadHistoryPanel() {
+        try {
+            const res = await fetch('/sessions');
+            if (!res.ok) throw new Error();
+            const sessions = await res.json();
+
+            if (els.sessionCount) els.sessionCount.textContent = sessions.length;
+
+            if (!sessions.length) {
+                els.historyList.innerHTML = `<div class="empty-state"><span>📭</span>No sessions yet</div>`;
+                return;
+            }
+
+            els.historyList.innerHTML = sessions.map(s => {
+                const date = new Date(s.created_at).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+                const isActive = s.id === currentSessionId ? 'active' : '';
+                return `
+                    <div class="history-item ${isActive}" data-id="${s.id}">
+                        <div class="history-item-id">Session #${s.id.slice(0, 8)}</div>
+                        <div class="history-item-date">${date}</div>
+                    </div>`;
+            }).join('');
+
+            // Click on history items to load past sessions
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const sid = item.dataset.id;
+                    if (sid !== currentSessionId) {
+                        currentSessionId = sid;
+                        localStorage.setItem('crop_session_id', sid);
+                        loadSessionMessages(sid);
+                        loadHistoryPanel(); // Refresh active state
+                    }
+                });
+            });
+        } catch {
+            els.historyList.innerHTML = `<div class="empty-state"><span>⚠️</span>Failed to load</div>`;
+        }
+    }
+
+    async function loadSessionMessages(sessionId) {
+        try {
+            const res = await fetch(`/sessions/${sessionId}/messages`);
+            if (!res.ok) throw new Error();
+            const messages = await res.json();
+            
+            els.resultsPlaceholder.style.display = 'none';
+            els.resultsContent.style.display = 'flex';
+            els.resultsContent.classList.add('chat-log');
+            els.resultsContent.innerHTML = ''; // clear
+
+            messages.forEach(msg => {
+                appendMessage(msg.role === 'model' ? 'ai' : 'user', msg.content);
+            });
+            
+            // Scroll to bottom
+            const panel = els.resultsContent.parentElement;
+            panel.scrollTo({ top: panel.scrollHeight, behavior: 'instant' });
+            
+        } catch {
+            // If session not found or error, just clear it
+            localStorage.removeItem('crop_session_id');
+            currentSessionId = null;
+            els.resultsContent.innerHTML = '';
+            els.resultsContent.style.display = 'none';
+            els.resultsPlaceholder.style.display = 'flex';
+            loadHistoryPanel();
+        }
+    }
+
+    // Initialize
+    loadHistoryPanel();
+    if (currentSessionId) {
+        loadSessionMessages(currentSessionId);
+    }
+})();

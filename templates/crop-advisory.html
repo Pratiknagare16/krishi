@@ -1,91 +1,176 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Krishi Officer — AI Crop Advisory." />
+    <title>Crop Advisory — Krishi Officer</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pest & Disease Detection - Krishi Officer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/crop-advisory.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/Logo.png') }}" type="image/x-icon">
-</head>
-
-<body>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/chat.css') }}"
+    />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='assets/Logo.png') }}"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
     <header class="header">
-        <div class="container">
-            <div class="header-left">
-                <button class="toggle-sidebar-btn" id="sidebarToggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
-                <div class="logo-small">
-                    <img src="/static/assets/Logo.png" alt="Krishi Officer Logo">
-                    <span>Krishi Officer</span>
-                </div>
-            </div>
-            <nav class="nav"><a href="#Language">Language</a></nav>
+      <div class="header-inner">
+        <div class="header-left">
+          <button
+            class="icon-btn"
+            id="sidebarToggle"
+            aria-label="Toggle sidebar"
+          >
+            ☰
+          </button>
+          <a href="/" class="logo-link">
+            <img src="/static/assets/Logo.png" alt="Krishi Officer" />
+            <span>Krishi Officer</span>
+          </a>
         </div>
+        <div class="header-actions">
+          <select
+            class="lang-select"
+            id="languageSelect"
+            aria-label="Select Language"
+          >
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+            <option value="ta">தமிழ்</option>
+            <option value="te">తెలుగు</option>
+          </select>
+          <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">
+            🌙
+          </button>
+        </div>
+      </div>
     </header>
 
     <aside class="sidebar" id="sidebar">
-        <ul class="nav-links">
-            <li><a href="/dashboard" class="nav-item"><span class="nav-icon">📊</span> <span
-                        class="nav-text">Dashboard</span></a></li>
-            <li><a href="/crop-advisory" class="nav-item active"><span class="nav-icon">🪲</span> <span
-                        class="nav-text">Crop Advisory</span></a></li>
-        </ul>
+      <ul class="nav-links">
+        <li>
+          <a href="/dashboard" class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text" data-i18n="nav_dashboard">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="/pest-detection" class="nav-item">
+            <span class="nav-icon">🪲</span>
+            <span class="nav-text" data-i18n="nav_pest">Pest Detection</span>
+          </a>
+        </li>
+        <li>
+          <a href="/crop-advisory" class="nav-item active">
+            <span class="nav-icon">🌾</span>
+            <span class="nav-text" data-i18n="nav_crop">Crop Advisory</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <img
+          src="https://ui-avatars.com/api/?name=Guest+Farmer&background=2d9e4f&color=fff&size=64"
+          alt="Avatar"
+          class="avatar"
+        />
+        <div class="user-info">
+          <p data-i18n="guest_farmer">Guest Farmer</p>
+          <span data-i18n="free_plan">Free plan</span>
+        </div>
+      </div>
     </aside>
 
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="main-wrapper">
-        <main class="main-content">
-            <header class="page-header">
-                <h1>🪲 Crop Advisory</h1>
-                <p class="subtitle">Describe the crop and attach a photo for AI analysis</p>
-            </header>
-
-            <div class="chat-container">
-                <div class="ai-response-area">
-                    <div class="panel-card" id="resultsPanel">
-                        <div class="results-placeholder" id="resultsPlaceholder">
-                            <div class="placeholder-icon">🌱</div>
-                            <p>Your AI diagnosis will appear here after you send a query.</p>
-                        </div>
-                        <div class="results-content" id="resultsContent" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chat-input-wrapper">
-                    <div class="input-container">
-                        <div class="image-preview-bubble" id="imagePreview" style="display: none;">
-                            <img id="previewImg" src="" alt="Preview">
-                            <button class="remove-btn" id="removeImage">✕</button>
-                        </div>
-
-                        <div class="input-bar">
-                            <input type="file" id="imageInput" accept="image/*" hidden>
-                            <button class="plus-btn" id="plusBtn" type="button" title="Add Image">+</button>
-
-                            <textarea id="textInput" class="chat-textarea"
-                                placeholder="Describe the crop (e.g., rice, wheat, maize)..." rows="1"></textarea>
-
-                            <button class="send-btn" id="diagnoseBtn">
-                                <span>➤</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+      <main class="main-content">
+        <div class="chat-layout">
+          <!-- Left: Chat -->
+          <div class="chat-col">
+            <div class="page-header">
+              <h1>
+                <span>🌾</span>
+                <span data-i18n="crop_title">Crop Advisory</span>
+              </h1>
+              <p data-i18n="crop_desc">
+                Describe what's wrong with your crop or ask anything — AI gives
+                you actionable advice.
+              </p>
             </div>
-        </main>
+
+            <div class="results-panel" id="resultsPanel">
+              <div class="results-placeholder" id="resultsPlaceholder">
+                <div class="placeholder-icon">🌿</div>
+                <p>
+                  Your AI advice will appear here. Ask about yellowing, wilting,
+                  pests, or anything you notice.
+                </p>
+              </div>
+              <div
+                class="results-content"
+                id="resultsContent"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div class="input-area">
+              <div class="image-preview-bubble" id="imagePreview">
+                <img id="previewImg" src="" alt="Preview" />
+                <button class="remove-btn" id="removeImage">✕</button>
+              </div>
+              <div class="input-bar">
+                <input type="file" id="imageInput" accept="image/*" hidden />
+                <button class="attach-btn" id="plusBtn" title="Attach photo">
+                  📎
+                </button>
+                <textarea
+                  id="textInput"
+                  class="chat-textarea"
+                  rows="1"
+                  placeholder="Describe your crop issue (e.g., rice leaves turning yellow)…"
+                  data-i18n="crop_placeholder"
+                ></textarea>
+                <button class="send-btn" id="diagnoseBtn" aria-label="Analyze">
+                  ➤
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Session history -->
+          <div class="history-col">
+            <div class="history-panel">
+              <div class="history-panel-header">
+                <p class="section-label" data-i18n="session_history">
+                  Session History
+                </p>
+                <span class="session-count" id="sessionCount">—</span>
+              </div>
+              <div class="history-list" id="historyList">
+                <div class="empty-state"><span>⏳</span>Loading…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/crop-advisory.js') }}"></script>
-</body>
-
+  </body>
 </html>
