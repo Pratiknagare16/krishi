@@ -1,24 +1,9 @@
 (() => {
-    const html = document.documentElement;
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const themeToggle = document.getElementById('themeToggle');
 
-    // --- Theme ---
-    const saved = localStorage.getItem('krishi-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
-
-    function applyTheme(t) {
-        html.setAttribute('data-theme', t);
-        if (themeToggle) themeToggle.textContent = t === 'dark' ? '☀️' : '🌙';
-        localStorage.setItem('krishi-theme', t);
-    }
-
-    themeToggle?.addEventListener('click', () => {
-        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    });
+    // Theme is managed by auth-guard.js — nothing to do here.
 
     // --- Language & i18n ---
     const translations = {
@@ -135,7 +120,7 @@
         const statSessions = document.getElementById('statSessions');
 
         try {
-            const res = await fetch('/sessions');
+            const res = window.authFetch ? await window.authFetch('/sessions') : await fetch('/sessions');
             if (!res.ok) throw new Error('Failed to fetch');
             const sessions = await res.json();
 

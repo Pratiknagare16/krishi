@@ -90,9 +90,9 @@
         formData.append('language', savedLang);
 
         try {
-            const res = await fetch('/analyze-crop', { method: 'POST', body: formData });
-            const data = await res.json();
-            if (!res.ok || !data.advice) throw new Error(data.error || 'Analysis failed');
+            const apiRes = window.authFetch ? await window.authFetch('/analyze-crop', { method: 'POST', body: formData }) : await fetch('/analyze-crop', { method: 'POST', body: formData });
+            const data = await apiRes.json();
+            if (!apiRes.ok || !data.advice) throw new Error(data.error || 'Analysis failed');
             
             // Save session
             currentSessionId = data.session_id;
@@ -171,7 +171,7 @@
     // --- Session History Fetching ---
     async function loadHistoryPanel() {
         try {
-            const res = await fetch('/sessions');
+            const res = window.authFetch ? await window.authFetch('/sessions') : await fetch('/sessions');
             if (!res.ok) throw new Error();
             const sessions = await res.json();
 
@@ -213,7 +213,7 @@
 
     async function loadSessionMessages(sessionId) {
         try {
-            const res = await fetch(`/sessions/${sessionId}/messages`);
+            const res = window.authFetch ? await window.authFetch(`/sessions/${sessionId}/messages`) : await fetch(`/sessions/${sessionId}/messages`);
             if (!res.ok) throw new Error();
             const messages = await res.json();
             

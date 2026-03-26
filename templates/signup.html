@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Sign up for Krishi Officer — AI-powered crop advisory and pest detection for Indian farmers."
+    />
+    <title>Sign Up — Krishi Officer</title>
+    <link
+      rel="shortcut icon"
+      href="/static/assets/Logo.png"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="/static/css/auth.css" />
+  </head>
+  <body>
+    <!-- Animated background -->
+    <div class="auth-bg" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header class="auth-header">
+      <a href="/" class="auth-logo">
+        <img src="/static/assets/Logo.png" alt="Krishi Officer" />
+        Krishi Officer
+      </a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        🌙
+      </button>
+    </header>
+
+    <!-- Main -->
+    <main class="auth-main">
+      <div class="auth-card">
+        <!-- Badge -->
+        <div class="auth-badge">
+          <span class="badge-dot"></span>
+          Create your free account
+        </div>
+
+        <h1 class="auth-title">Join Krishi Officer</h1>
+        <p class="auth-subtitle">
+          Get AI-powered crop advice, pest detection, and farm insights.
+        </p>
+
+        <!-- Global alert -->
+        <div class="auth-alert" id="signupAlert" role="alert">
+          <span class="auth-alert-icon"></span>
+          <span class="auth-alert-msg"></span>
+        </div>
+
+        <form class="auth-form" id="signupForm" novalidate>
+          <!-- Name -->
+          <div class="field-group">
+            <label class="field-label" for="name">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">👤</span>
+              <input
+                class="auth-input"
+                type="text"
+                id="name"
+                name="name"
+                placeholder="e.g. Ramesh Patil"
+                autocomplete="name"
+                required
+              />
+            </div>
+            <span class="field-error" id="nameError" aria-live="polite"></span>
+          </div>
+
+          <!-- Email -->
+          <div class="field-group">
+            <label class="field-label" for="email">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">📧</span>
+              <input
+                class="auth-input"
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+            <span class="field-error" id="emailError" aria-live="polite"></span>
+          </div>
+
+          <!-- Password -->
+          <div class="field-group">
+            <label class="field-label" for="password">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">🔒</span>
+              <input
+                class="auth-input has-toggle"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="At least 8 characters"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                class="pw-toggle"
+                type="button"
+                data-target="password"
+                aria-label="Toggle password visibility"
+              >
+                👁️
+              </button>
+            </div>
+            <span
+              class="field-error"
+              id="passwordError"
+              aria-live="polite"
+            ></span>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="field-group">
+            <label class="field-label" for="confirmPassword"
+              >Confirm Password</label
+            >
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">🔒</span>
+              <input
+                class="auth-input has-toggle"
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Repeat your password"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                class="pw-toggle"
+                type="button"
+                data-target="confirmPassword"
+                aria-label="Toggle confirm password visibility"
+              >
+                👁️
+              </button>
+            </div>
+            <span
+              class="field-error"
+              id="confirmPasswordError"
+              aria-live="polite"
+            ></span>
+          </div>
+
+          <!-- Submit -->
+          <button class="auth-btn" type="submit" id="signupBtn">
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-label">Create Account →</span>
+          </button>
+        </form>
+
+        <div class="auth-divider">or</div>
+
+        <p class="auth-footer">
+          Already have an account?
+          <a href="/login">Sign in →</a>
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      © 2026 Krishi Officer — Empowering farmers with AI.
+    </footer>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script>
+      initAuthGuard({ protected: false });
+    </script>
+    <script src="/static/js/auth.js"></script>
+  </body>
+</html>

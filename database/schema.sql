@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -1,10 +1,11 @@
 # Image + Gemini orchestration
 # Accepts images and user queries, triggers Gemini analysis using prompt registry.
 import uuid
-from flask import Blueprint, request, jsonify
 from services.gemini_service import get_gemini_analysis
 from services.prompt_registry import PROMPTS
 from database.db import get_db_connection, release_db_connection
+from flask import Blueprint, request, jsonify, g
+from middleware.auth_middleware import token_required
 
 analyze_bp = Blueprint("analyze", __name__)
 
@@ -21,10 +22,10 @@ LANG_MAP = {
 }
 
 
-def _create_or_validate_session(cur, session_id):
+def _create_or_validate_session(cur, session_id, user_id):
     """Create a new session if none provided. Returns a UUID."""
     if not session_id:
-        cur.execute("INSERT INTO sessions DEFAULT VALUES RETURNING id")
+        cur.execute("INSERT INTO sessions (user_id) VALUES (%s) RETURNING id", (user_id,))
         return cur.fetchone()[0]
     # Validate that the provided session_id is a valid UUID format
     try:
@@ -34,6 +35,7 @@ def _create_or_validate_session(cur, session_id):
 
 
 @analyze_bp.route("/analyze-crop", methods=["POST"])
+@token_required
 def analyze_crop():
     """Route for general crop advisory analysis (multimodal)."""
     image_file = request.files.get("crop_image")
@@ -65,7 +67,7 @@ def analyze_crop():
     conn = get_db_connection()
     cur = conn.cursor()
     try:
-        validated_session_id = _create_or_validate_session(cur, session_id)
+        validated_session_id = _create_or_validate_session(cur, session_id, g.user.id)
         msg_content = user_query if user_query else "[Image Uploaded]"
         cur.execute(
             "INSERT INTO messages (session_id, role, content) VALUES (%s, %s, %s)",

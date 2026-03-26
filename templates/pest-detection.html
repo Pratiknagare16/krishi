@@ -87,15 +87,39 @@
       </ul>
       <div class="sidebar-footer">
         <img
-          src="https://ui-avatars.com/api/?name=Guest+Farmer&background=2d9e4f&color=fff&size=64"
+          src="https://ui-avatars.com/api/?name=Farmer&background=2d9e4f&color=fff&size=128"
           alt="Avatar"
-          class="avatar"
+          class="avatar sidebar-avatar"
         />
         <div class="user-info">
-          <p data-i18n="guest_farmer">Guest Farmer</p>
-          <span data-i18n="free_plan">Free plan</span>
+          <p class="sidebar-user-name">Farmer</p>
+          <span class="sidebar-user-email">Krishi Farmer</span>
         </div>
       </div>
+      <button
+        class="nav-item logout-btn"
+        data-action="logout"
+        style="
+          margin-top: 6px;
+          width: 100%;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--text-secondary);
+          gap: 10px;
+          display: flex;
+          align-items: center;
+          padding: 9px 10px;
+          border-radius: 9px;
+          font-size: 13.5px;
+          font-weight: 500;
+          transition: all var(--transition);
+        "
+        aria-label="Logout"
+      >
+        <span class="nav-icon">🚪</span>
+        <span class="nav-text">Logout</span>
+      </button>
     </aside>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -173,6 +197,10 @@
       </main>
     </div>
 
+    <script src="{{ url_for('static', filename='js/auth-guard.js') }}"></script>
+    <script>
+      initAuthGuard({ protected: true });
+    </script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pest_detection.js') }}"></script>
   </body>

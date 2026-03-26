@@ -1,4 +1,34 @@
 (() => {
+    // ===== AUTH MANAGEMENT =====
+    window.getAuthHeaders = () => {
+        const token = localStorage.getItem('krishi_access_token');
+        return token ? { 'Authorization': `Bearer ${token}` } : {};
+    };
+
+    window.saveAuth = (token, user) => {
+        localStorage.setItem('krishi_access_token', token);
+        localStorage.setItem('krishi_user', JSON.stringify(user));
+    };
+
+    window.logout = () => {
+        localStorage.removeItem('krishi_access_token');
+        localStorage.removeItem('krishi_user');
+        window.location.href = '/';
+    };
+
+    window.authFetch = async (url, options = {}) => {
+        const headers = {
+            ...options.headers,
+            ...window.getAuthHeaders()
+        };
+        const res = await fetch(url, { ...options, headers });
+        if (res.status === 401) {
+            // Token expired or invalid — usually you'd redirect to login
+            console.warn('Unauthorized request. Possible session expiration.');
+        }
+        return res;
+    };
+
     // ===== THEME MANAGEMENT =====
     const html = document.documentElement;
     const themeToggle = document.getElementById('themeToggle');

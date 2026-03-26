@@ -1,11 +1,13 @@
 import uuid
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from database.db import get_db_connection, release_db_connection
+from middleware.auth_middleware import token_required
 
 session_bp = Blueprint("sessions", __name__)
 
 
 @session_bp.route("/sessions", methods=["GET"])
+@token_required
 def get_sessions():
     """Return the 50 most recent sessions (paginated with offset support)."""
     try:
@@ -17,8 +19,8 @@ def get_sessions():
     cur = conn.cursor()
     try:
         cur.execute(
-            "SELECT id, created_at FROM sessions ORDER BY created_at DESC LIMIT 50 OFFSET %s",
-            (offset,)
+            "SELECT id, created_at FROM sessions WHERE user_id = %s ORDER BY created_at DESC LIMIT 50 OFFSET %s",
+            (g.user.id, offset)
         )
         sessions = cur.fetchall()
     finally:
@@ -29,6 +31,7 @@ def get_sessions():
 
 
 @session_bp.route("/sessions/<session_id>/messages", methods=["GET"])
+@token_required
 def get_messages(session_id):
     """Return all messages belonging to a session."""
     # Validate UUID before hitting the database — Postgres raises DataError on bad castes.
@@ -40,6 +43,11 @@ def get_messages(session_id):
     conn = get_db_connection()
     cur = conn.cursor()
     try:
+        # First verify the session belongs to the user
+        cur.execute("SELECT id FROM sessions WHERE id = %s AND user_id = %s", (str(validated_id), g.user.id))
+        if not cur.fetchone():
+            return jsonify({"error": "Session not found or unauthorized."}), 404
+
         cur.execute(
             "SELECT id, role, content, created_at FROM messages WHERE session_id = %s ORDER BY created_at ASC",
             (str(validated_id),)
