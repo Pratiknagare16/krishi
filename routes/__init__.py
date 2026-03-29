@@ -1,1 +1,1 @@
- # Chat session CRUD (UUID-based)
+# Routes package

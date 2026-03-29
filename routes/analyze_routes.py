@@ -3,7 +3,7 @@
 import uuid
 from services.gemini_service import get_gemini_analysis
 from services.prompt_registry import PROMPTS
-from database.db import get_db_connection, release_db_connection
+from database.db import create_session, insert_message
 from flask import Blueprint, request, jsonify, g
 from middleware.auth_middleware import token_required
 
@@ -20,19 +20,6 @@ LANG_MAP = {
     "ta": "Tamil",
     "te": "Telugu"
 }
-
-
-def _create_or_validate_session(cur, session_id, user_id):
-    """Create a new session if none provided. Returns a UUID."""
-    if not session_id:
-        new_id = str(uuid.uuid4())
-        cur.execute("INSERT INTO sessions (id, user_id) VALUES (?, ?)", (new_id, user_id))
-        return new_id
-    # Validate that the provided session_id is a valid UUID format
-    try:
-        return uuid.UUID(str(session_id))
-    except (ValueError, AttributeError):
-        raise ValueError(f"Invalid session_id format: {session_id}")
 
 
 @analyze_bp.route("/analyze-crop", methods=["POST"])
@@ -64,49 +51,34 @@ def analyze_crop():
             f"for technical botanical terms."
         )
 
-    # --- Phase 1: Open a DB connection, create/validate session, store user message, release ---
-    conn = get_db_connection()
-    cur = conn.cursor()
+    # --- Create or reuse session ---
     try:
-        validated_session_id = _create_or_validate_session(cur, session_id, g.user.id)
-        msg_content = user_query if user_query else "[Image Uploaded]"
-        cur.execute(
-            "INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)",
-            (str(validated_session_id), 'user', msg_content)
-        )
-        conn.commit()
-    except (ValueError, Exception) as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 400
-    finally:
-        cur.close()
-        # CRITICAL: Release the connection back to the pool BEFORE calling Gemini.
-        # Gemini can take 5-15 seconds. Holding the connection during that time would
-        # starve other requests of DB connections under any meaningful load.
-        release_db_connection(conn)
+        if not session_id:
+            session_id = create_session(g.user.id)
+        else:
+            # Validate UUID format
+            try:
+                uuid.UUID(str(session_id))
+            except (ValueError, AttributeError):
+                return jsonify({"error": f"Invalid session_id format: {session_id}"}), 400
 
-    # --- Phase 2: Call Gemini AI (no DB connection held) ---
+        # Store user message
+        msg_content = user_query if user_query else "[Image Uploaded]"
+        insert_message(session_id, "user", msg_content)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    # --- Call Gemini AI ---
     try:
         ai_advice = get_gemini_analysis(image_file, full_prompt)
     except Exception as e:
         return jsonify({"error": f"AI analysis failed: {str(e)}"}), 502
 
-    # --- Phase 3: Re-acquire a DB connection to store the AI response ---
-    conn2 = get_db_connection()
-    cur2 = conn2.cursor()
+    # --- Store AI response ---
     try:
-        cur2.execute(
-            "INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)",
-            (str(validated_session_id), 'model', ai_advice)
-        )
-        conn2.commit()
-    except Exception as e:
-        conn2.rollback()
-        # We still have a valid AI response, so we return it even if storing fails.
-        # The session_id is returned for the client to keep using.
-        return jsonify({"advice": ai_advice, "session_id": str(validated_session_id)}), 200
-    finally:
-        cur2.close()
-        release_db_connection(conn2)
+        insert_message(session_id, "model", ai_advice)
+    except Exception:
+        # We still have a valid AI response, return it even if storing fails
+        pass
 
-    return jsonify({"advice": ai_advice, "session_id": str(validated_session_id)})
+    return jsonify({"advice": ai_advice, "session_id": str(session_id)})

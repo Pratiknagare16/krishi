@@ -1,6 +1,6 @@
 Flask
- supabase
- google-generativeai
- Pillow
- python-dotenv
- requests
+supabase
+google-generativeai
+Pillow
+python-dotenv
+requests
