@@ -1,0 +1,6 @@
+Flask
+ supabase
+ google-generativeai
+ Pillow
+ python-dotenv
+ requests

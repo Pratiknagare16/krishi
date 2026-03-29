@@ -19,7 +19,7 @@ def get_sessions():
     cur = conn.cursor()
     try:
         cur.execute(
-            "SELECT id, created_at FROM sessions WHERE user_id = %s ORDER BY created_at DESC LIMIT 50 OFFSET %s",
+            "SELECT id, created_at FROM sessions WHERE user_id = ? ORDER BY created_at DESC LIMIT 50 OFFSET ?",
             (g.user.id, offset)
         )
         sessions = cur.fetchall()
@@ -27,7 +27,7 @@ def get_sessions():
         cur.close()
         release_db_connection(conn)
 
-    return jsonify([{"id": str(s[0]), "created_at": s[1].isoformat()} for s in sessions])
+    return jsonify([{"id": str(s[0]), "created_at": s[1].isoformat() if hasattr(s[1], 'isoformat') else s[1]} for s in sessions])
 
 
 @session_bp.route("/sessions/<session_id>/messages", methods=["GET"])
@@ -44,12 +44,12 @@ def get_messages(session_id):
     cur = conn.cursor()
     try:
         # First verify the session belongs to the user
-        cur.execute("SELECT id FROM sessions WHERE id = %s AND user_id = %s", (str(validated_id), g.user.id))
+        cur.execute("SELECT id FROM sessions WHERE id = ? AND user_id = ?", (str(validated_id), g.user.id))
         if not cur.fetchone():
             return jsonify({"error": "Session not found or unauthorized."}), 404
 
         cur.execute(
-            "SELECT id, role, content, created_at FROM messages WHERE session_id = %s ORDER BY created_at ASC",
+            "SELECT id, role, content, created_at FROM messages WHERE session_id = ? ORDER BY created_at ASC",
             (str(validated_id),)
         )
         messages = cur.fetchall()
@@ -60,6 +60,6 @@ def get_messages(session_id):
         release_db_connection(conn)
 
     return jsonify([
-        {"id": m[0], "role": m[1], "content": m[2], "created_at": m[3].isoformat()}
+        {"id": m[0], "role": m[1], "content": m[2], "created_at": m[3].isoformat() if hasattr(m[3], 'isoformat') else m[3]}
         for m in messages
     ])

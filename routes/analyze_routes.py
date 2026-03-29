@@ -25,8 +25,9 @@ LANG_MAP = {
 def _create_or_validate_session(cur, session_id, user_id):
     """Create a new session if none provided. Returns a UUID."""
     if not session_id:
-        cur.execute("INSERT INTO sessions (user_id) VALUES (%s) RETURNING id", (user_id,))
-        return cur.fetchone()[0]
+        new_id = str(uuid.uuid4())
+        cur.execute("INSERT INTO sessions (id, user_id) VALUES (?, ?)", (new_id, user_id))
+        return new_id
     # Validate that the provided session_id is a valid UUID format
     try:
         return uuid.UUID(str(session_id))
@@ -70,7 +71,7 @@ def analyze_crop():
         validated_session_id = _create_or_validate_session(cur, session_id, g.user.id)
         msg_content = user_query if user_query else "[Image Uploaded]"
         cur.execute(
-            "INSERT INTO messages (session_id, role, content) VALUES (%s, %s, %s)",
+            "INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)",
             (str(validated_session_id), 'user', msg_content)
         )
         conn.commit()
@@ -95,7 +96,7 @@ def analyze_crop():
     cur2 = conn2.cursor()
     try:
         cur2.execute(
-            "INSERT INTO messages (session_id, role, content) VALUES (%s, %s, %s)",
+            "INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)",
             (str(validated_session_id), 'model', ai_advice)
         )
         conn2.commit()

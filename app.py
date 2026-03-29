@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, jsonify, request, g
 from routes.analyze_routes import analyze_bp
 from routes.session_routes import session_bp
+from routes.weather_routes import weather_bp
 from supabase_client import supabase  
 from middleware.auth_middleware import token_required
 try:
@@ -21,6 +22,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 # Register blueprints
 app.register_blueprint(analyze_bp)
 app.register_blueprint(session_bp)
+app.register_blueprint(weather_bp)
 
 # Handle 413 (file too large) gracefully instead of crashing
 @app.errorhandler(413)
@@ -47,6 +49,11 @@ def pest_detection():
 def crop_advisory():
     """Serve the crop advisory page"""
     return render_template('crop-advisory.html')
+
+@app.route('/weather')
+def weather():
+    from flask import redirect, url_for
+    return redirect(url_for('dashboard', view='weather'))
 
 @app.route('/login')
 def login_page():

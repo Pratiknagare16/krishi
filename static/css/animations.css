@@ -1,0 +1,447 @@
+/* ===== ANIMATIONS.CSS ===== */
+/* Professional animation system for Krishi Officer */
+/* GPU-friendly animations using transform and opacity */
+
+/* ===== KEYFRAME ANIMATIONS ===== */
+
+/* Page Load - Fade In */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide In - From Left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In - From Right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In - From Top */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide In - From Bottom */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale In */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Bounce Gentle */
+@keyframes bounceGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Pulse - Subtle */
+@keyframes pulseSubtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Glow - For badges and highlights */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(45, 158, 79, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(45, 158, 79, 0.8);
+  }
+}
+
+/* Shimmer - Skeleton loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Float - Gentle upward movement */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ===== ANIMATION UTILITY CLASSES ===== */
+
+/* Fade In on Page Load */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Slide Animations */
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-down {
+  animation: slideInDown 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Scale Animation */
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+/* Staggered animations for list items */
+.animate-stagger-item {
+  opacity: 0;
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+.animate-stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.animate-stagger-item:nth-child(2) { animation-delay: 0.2s; }
+.animate-stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.animate-stagger-item:nth-child(4) { animation-delay: 0.4s; }
+.animate-stagger-item:nth-child(5) { animation-delay: 0.5s; }
+.animate-stagger-item:nth-child(n+6) { animation-delay: 0.6s; }
+
+/* Scroll Reveal - Applied by JS when element enters viewport */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll Reveal with Slide Left */
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Scroll Reveal with Slide Right */
+.scroll-reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Scroll Reveal with Scale */
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ===== HOVER ANIMATIONS ===== */
+
+/* Button Hover - Scale & Shadow Lift */
+.btn-hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(45, 158, 79, 0.3);
+}
+
+.btn-hover-lift:active {
+  transform: translateY(0);
+}
+
+/* Card Hover - Lift & Glow */
+.card-hover-lift {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(45, 158, 79, 0.15);
+}
+
+/* Link Hover - Underline Animate */
+.link-hover-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-hover-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: width 0.3s ease-out;
+}
+
+.link-hover-underline:hover::after {
+  width: 100%;
+}
+
+/* Image Zoom on Hover */
+.img-hover-zoom {
+  overflow: hidden;
+  border-radius: var(--radius-md, 12px);
+}
+
+.img-hover-zoom img {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.img-hover-zoom:hover img {
+  transform: scale(1.08);
+}
+
+/* Icon Bounce */
+.icon-bounce:hover {
+  animation: bounceGentle 0.6s ease-in-out;
+}
+
+/* ===== NAVBAR/HEADER ANIMATIONS ===== */
+
+/* Header Shadow on Scroll (Smooth transition) */
+.header.scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease-out;
+}
+
+/* Nav Item Active State */
+.nav-item {
+  position: relative;
+  transition: color 0.3s ease-out;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:hover::before {
+  width: 100%;
+}
+
+.nav-item.active::before {
+  width: 100%;
+}
+
+/* ===== LOADER & SKELETON ===== */
+
+/* Skeleton Shimmer Effect */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 0%,
+    rgba(45, 158, 79, 0.1) 50%,
+    var(--bg-card) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Loader Spin */
+.loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(45, 158, 79, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse Loading */
+.pulse-load {
+  animation: pulseSubtle 1.5s ease-in-out infinite;
+}
+
+/* ===== MODAL & DIALOG ANIMATIONS ===== */
+
+/* Modal Fade In */
+.modal-overlay {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===== SIDEBAR ANIMATION ===== */
+
+.sidebar {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s ease-out;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ===== BADGE & NOTIFICATION ANIMATIONS ===== */
+
+/* Badge Pulse */
+.badge-pulse {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Disable pulse effect in dark mode */
+[data-theme="dark"] .badge-pulse {
+  animation: none;
+  box-shadow: 0 0 15px rgba(45, 158, 79, 0.3);
+}
+
+/* Notification Slide In */
+.notification-enter {
+  animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.notification-exit {
+  animation: slideInRight 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) reverse;
+}
+
+/* ===== ACCESSIBILITY - REDUCE MOTION ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations for motion-sensitive users */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== RESPONSIVE ANIMATION TWEAKS ===== */
+
+@media (max-width: 768px) {
+  /* Slightly faster animations on mobile for snappier feel */
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-slide-in-up,
+  .scroll-reveal {
+    animation-duration: 0.4s;
+  }
+
+  /* Reduce hover effects on touch devices */
+  @media (hover: none) {
+    .btn-hover-lift:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .card-hover-lift:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .img-hover-zoom:hover img {
+      transform: scale(1);
+    }
+  }
+}

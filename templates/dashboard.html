@@ -19,6 +19,15 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/dashboard.css') }}"
     />
+    <!-- Animation System -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/animations.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/components-animations.css') }}"
+    />
     <link
       rel="shortcut icon"
       href="{{ url_for('static', filename='assets/Logo.png') }}"
@@ -80,6 +89,12 @@
           <a href="/crop-advisory" class="nav-item">
             <span class="nav-icon">🌾</span>
             <span class="nav-text" data-i18n="nav_crop">Crop Advisory</span>
+          </a>
+        </li>
+        <li>
+          <a href="/weather" class="nav-item" id="nav-weather">
+            <span class="nav-icon">🌦️</span>
+            <span class="nav-text" data-i18n="nav_weather">Weather</span>
           </a>
         </li>
       </ul>
@@ -236,5 +251,7 @@
       initAuthGuard({ protected: true });
     </script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <!-- Animation System -->
+    <script src="{{ url_for('static', filename='js/scroll-animations.js') }}"></script>
   </body>
 </html>

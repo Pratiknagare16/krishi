@@ -19,6 +19,9 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="/static/css/style.css" />
+    <!-- Animation System -->
+    <link rel="stylesheet" href="/static/css/animations.css" />
+    <link rel="stylesheet" href="/static/css/components-animations.css" />
     <link
       rel="shortcut icon"
       href="/static/assets/Logo.png"
@@ -165,7 +168,7 @@
     </main>
 
     <!-- ===== FEATURES ===== -->
-    <section class="features-section" id="features">
+    <section class="features-section scroll-reveal" id="features">
       <div class="container">
         <div class="section-header">
           <div class="section-tag">Built for Indian Farmers</div>
@@ -176,7 +179,7 @@
         </div>
 
         <div class="features-grid">
-          <div class="feature-card">
+          <div class="feature-card animate-stagger-item">
             <span class="feature-icon">🪲</span>
             <h3>Pest Detection</h3>
             <p>
@@ -184,7 +187,7 @@
               identifies the pest and gives you a targeted organic remedy.
             </p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-stagger-item">
             <span class="feature-icon">🌾</span>
             <h3>Crop Advisory</h3>
             <p>
@@ -192,7 +195,7 @@
               actionable health advice in minutes.
             </p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-stagger-item">
             <span class="feature-icon">💬</span>
             <h3>Chat History</h3>
             <p>
@@ -200,7 +203,7 @@
               track your farm's health over time.
             </p>
           </div>
-          <div class="feature-card">
+          <div class="feature-card animate-stagger-item">
             <span class="feature-icon">🌍</span>
             <h3>Multi-language</h3>
             <p>
@@ -213,14 +216,14 @@
     </section>
 
     <!-- ===== HOW IT WORKS ===== -->
-    <section class="how-section" id="how">
+    <section class="how-section scroll-reveal-left" id="how">
       <div class="container">
         <div class="section-header">
           <div class="section-tag">Simple 3-step process</div>
           <h2 class="section-title">How it works</h2>
         </div>
         <div class="steps-grid">
-          <div class="step-item">
+          <div class="step-item animate-stagger-item">
             <div class="step-num">1</div>
             <h4>Upload a Photo</h4>
             <p>
@@ -228,7 +231,7 @@
               upload it to the app.
             </p>
           </div>
-          <div class="step-item">
+          <div class="step-item animate-stagger-item">
             <div class="step-num">2</div>
             <h4>AI Analyzes It</h4>
             <p>
@@ -236,7 +239,7 @@
               structured advisory for you.
             </p>
           </div>
-          <div class="step-item">
+          <div class="step-item animate-stagger-item">
             <div class="step-num">3</div>
             <h4>Get Clear Advice</h4>
             <p>
@@ -249,7 +252,7 @@
     </section>
 
     <!-- ===== FOOTER ===== -->
-    <footer class="footer">
+    <footer class="footer scroll-reveal">
       <div class="container">
         <div class="footer-inner">
           <div class="footer-brand">
@@ -266,5 +269,7 @@
       initAuthGuard({ protected: false });
     </script>
     <script src="/static/js/script.js"></script>
+    <!-- Animation System -->
+    <script src="/static/js/scroll-animations.js"></script>
   </body>
 </html>

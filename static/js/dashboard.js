@@ -153,5 +153,170 @@
         }
     }
 
+    // --- Weather Module Logic ---
+    const weatherMenu = document.getElementById('nav-weather');
+    const mainColArea = document.querySelector('.col-primary');
+    const headerTitle = document.querySelector('.page-header h1');
+
+    if (weatherMenu && mainColArea) {
+        weatherMenu.addEventListener('click', async (e) => {
+            if(e) e.preventDefault();
+            
+            // Highlight active menu
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            weatherMenu.classList.add('active');
+            
+            // Adjust header
+            if (headerTitle) headerTitle.textContent = "Weather Forecast 🌦️";
+            
+            // Render loading state
+            mainColArea.innerHTML = `
+                <div class="weather-module">
+                    <div class="weather-header">
+                        <div class="weather-search">
+                            <input type="text" id="weatherCityInput" placeholder="Search city..." value="${localStorage.getItem('weather_last_city') || ''}">
+                            <button id="weatherSearchBtn">Search</button>
+                            <button id="weatherLocationBtn" title="Use my location">📍</button>
+                        </div>
+                    </div>
+                    <div class="empty-state" id="weatherLoader">
+                        <span>⏳</span>
+                        <span>Loading Weather Data...</span>
+                    </div>
+                    <div id="weatherContentArea"></div>
+                </div>
+            `;
+
+            // Setup listeners inside the new DOM
+            document.getElementById('weatherSearchBtn').addEventListener('click', () => {
+                const city = document.getElementById('weatherCityInput').value.trim();
+                if (city) {
+                    localStorage.setItem('weather_last_city', city);
+                    loadWeather(city, null, null);
+                }
+            });
+            document.getElementById('weatherLocationBtn').addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    document.getElementById('weatherLoader').style.display = 'block';
+                    document.getElementById('weatherContentArea').innerHTML = '';
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => loadWeather(null, pos.coords.latitude, pos.coords.longitude),
+                        (err) => { alert("Location access denied."); document.getElementById('weatherLoader').style.display = 'none'; }
+                    );
+                }
+            });
+
+            // Initial Load
+            const lastCity = localStorage.getItem('weather_last_city');
+            if (lastCity) {
+                loadWeather(lastCity, null, null);
+            } else {
+                loadWeather("New Delhi", null, null);
+            }
+        });
+
+        // Auto-open weather if URL explicitly requests it
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('view') === 'weather') {
+            weatherMenu.click();
+        }
+    }
+
+    async function loadWeather(city, lat, lon) {
+        const loader = document.getElementById('weatherLoader');
+        const contentArea = document.getElementById('weatherContentArea');
+        if (!loader || !contentArea) return;
+
+        loader.style.display = 'block';
+        contentArea.innerHTML = '';
+        
+        try {
+            let url = '';
+            if (lat && lon) {
+                url = `/api/weather/coords?lat=${lat}&lon=${lon}`;
+            } else {
+                url = `/api/weather/city?q=${encodeURIComponent(city)}`;
+            }
+
+            const res = window.authFetch ? await window.authFetch(url) : await fetch(url);
+            if (!res.ok) throw new Error('Failed to fetch weather');
+            
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            
+            renderWeather(data, contentArea);
+        } catch (error) {
+            console.error(error);
+            contentArea.innerHTML = `
+                <div class="empty-state" style="color: red;">
+                    <span>⚠️</span>
+                    <span>Failed to load weather data. Please try again.</span>
+                </div>
+            `;
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    function renderWeather(data, container) {
+        const current = data.current || {};
+        const daily = data.forecast_5day || [];
+        const hourly = data.hourly_forecast || [];
+
+        const fiveDayHTML = daily.map(day => `
+            <div class="w-day-item">
+                <div class="w-day-date">${new Date(day.date).toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'})}</div>
+                <div class="w-day-cond">${day.condition}</div>
+                <div class="w-day-temps">${Math.round(day.min_temp)}° / ${Math.round(day.max_temp)}°</div>
+            </div>
+        `).join('');
+
+        const hourlyHTML = hourly.map(hour => {
+            const timeStr = new Date(hour.time).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'});
+            return `
+            <div class="w-hour-item">
+                <div class="w-hour-time">${timeStr}</div>
+                <div class="w-hour-temp">${Math.round(hour.temp)}°</div>
+                <div class="w-hour-cond">${hour.condition}</div>
+            </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="weather-current">
+                <div class="weather-current-main">
+                    <h2>${data.city}</h2>
+                    <p>Current Conditions • ${current.condition}</p>
+                    <div class="weather-temp">${Math.round(current.temperature)}°C</div>
+                </div>
+                <div class="weather-details-grid">
+                    <div class="w-detail">
+                        <span>Humidity</span>
+                        <span>${current.humidity}%</span>
+                    </div>
+                    <div class="w-detail">
+                        <span>Wind</span>
+                        <span>${current.wind_speed} km/h</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weather-forecasts">
+                <div class="w-panel">
+                    <h3>Hourly Forecast (24h)</h3>
+                    <div class="w-hourly-scroll">
+                        ${hourlyHTML}
+                    </div>
+                </div>
+                <div class="w-panel">
+                    <h3>5-Day Forecast</h3>
+                    <div class="w-5day-list">
+                        ${fiveDayHTML}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     loadSessions();
 })();
